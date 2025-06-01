@@ -9,7 +9,6 @@ pipeline {
             vaultSecrets: [
               [
                 path: 'pipeline/env', // <-- ตรงกับที่คุณ `vault kv put`
-                engineVersion: 2,
                 secretValues: [
                   [envVar: 'REGISTRY', vaultKey: 'REGISTRY'],
                   [envVar: 'REGISTRY_PROJECT_NAME', vaultKey: 'REGISTRY_PROJECT_NAME'],
