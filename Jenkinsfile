@@ -33,7 +33,7 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        sh 'DOCKER_BUILDKIT=1 docker build -t $FULL_IMAGE .'
+        sh 'docker build -t $FULL_IMAGE .'
       }
     }
 
