@@ -22,8 +22,8 @@ pipeline {
               ]
             ]
           ) {
-            env.TAG = env.BUILD_NUMBER
-            env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
+            // env.TAG = env.BUILD_NUMBER
+            // env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
 
             sh 'echo ✅ Loaded all Vault secrets.'
           }
