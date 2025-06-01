@@ -8,7 +8,7 @@ pipeline {
           withVault(
             vaultSecrets: [
               [
-                path: 'pipeline/env', // <-- ตรงกับที่คุณ `vault kv put`
+                path: 'pipeline/data/env', // <-- ตรงกับที่คุณ `vault kv put`
                 secretValues: [
                   [envVar: 'REGISTRY', vaultKey: 'REGISTRY'],
                   [envVar: 'REGISTRY_PROJECT_NAME', vaultKey: 'REGISTRY_PROJECT_NAME'],
