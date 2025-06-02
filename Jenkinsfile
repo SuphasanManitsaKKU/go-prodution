@@ -1,100 +1,86 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    DOCKER_BUILDKIT = '1'  // ✅ เปิด BuildKit สำหรับทุก stage
-  }
-
-  stages {
-    stage('Check Build Info') {
-      steps {
-        sh '''
-          echo "🔧 BUILD_NUMBER = $BUILD_NUMBER"
-          echo "🔧 JOB_NAME = $JOB_NAME"
-          echo "🔧 BUILD_ID = $BUILD_ID"
-        '''
-      }
+    environment {
+        DOCKER_BUILDKIT = '1'
     }
 
-    stage('Load All Configs from Vault') {
-      steps {
-        script {
-          withVault(
-            vaultSecrets: [
-              [
-                path: 'pipeline/env',
-                secretValues: [
-                  [envVar: 'DOCKER_PASSWORD', vaultKey: 'DOCKER_PASSWORD'],
-                  [envVar: 'DOCKER_USERNAME', vaultKey: 'DOCKER_USERNAME'],
-                  [envVar: 'REGISTRY', vaultKey: 'REGISTRY'],
-                  [envVar: 'REGISTRY_PROJECT_NAME', vaultKey: 'REGISTRY_PROJECT_NAME'],
-                  [envVar: 'IMAGE', vaultKey: 'IMAGE'],
-                  [envVar: 'IMAGE_OUTPUT_PORT', vaultKey: 'IMAGE_OUTPUT_PORT'],
-                  [envVar: 'TARGET_USER', vaultKey: 'TARGET_USER'],
-                  [envVar: 'TARGET_IP', vaultKey: 'TARGET_IP']
-                ]
-              ]
+    stages {
+        stage('Check Build Info') {
+            steps {
+                sh '''
+                    echo "🔧 BUILD_NUMBER = $BUILD_NUMBER"
+                    echo "🔧 JOB_NAME = $JOB_NAME"
+                    echo "🔧 BUILD_ID = $BUILD_ID"
+                '''
+            }
+        }
+
+        stage('Load Configs from Vault') {
+            steps {
+                script {
+                    withVault(vaultSecrets: [[
+            path: 'pipeline/env',
+            secretValues: [
+              [envVar: 'DOCKER_PASSWORD', vaultKey: 'DOCKER_PASSWORD'],
+              [envVar: 'DOCKER_USERNAME', vaultKey: 'DOCKER_USERNAME'],
+              [envVar: 'REGISTRY', vaultKey: 'REGISTRY'],
+              [envVar: 'REGISTRY_PROJECT_NAME', vaultKey: 'REGISTRY_PROJECT_NAME'],
+              [envVar: 'IMAGE', vaultKey: 'IMAGE'],
+              [envVar: 'IMAGE_OUTPUT_PORT', vaultKey: 'IMAGE_OUTPUT_PORT'],
+              [envVar: 'TARGET_USER', vaultKey: 'TARGET_USER'],
+              [envVar: 'TARGET_IP', vaultKey: 'TARGET_IP']
             ]
-          ) {
-            // assign เข้า env pipeline
-            env.DOCKER_PASSWORD = env.DOCKER_PASSWORD
-            env.DOCKER_USERNAME = env.DOCKER_USERNAME
-            env.REGISTRY = env.REGISTRY
-            env.REGISTRY_PROJECT_NAME = env.REGISTRY_PROJECT_NAME
-            env.IMAGE = env.IMAGE
-            env.IMAGE_OUTPUT_PORT = env.IMAGE_OUTPUT_PORT
-            env.TARGET_USER = env.TARGET_USER
-            env.TARGET_IP = env.TARGET_IP
-            env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:"
+          ]]) {
+          // no-op, env vars are auto-loaded
           }
+                }
+            }
         }
-      }
-    }
 
-    stage('Build Tag Setup') {
-      steps {
-        script {
-          // ✅ คำนวณ tag และ full image ที่นี่ (มี BUILD_NUMBER แล้วแน่นอน)
-          env.TAG = env.BUILD_NUMBER?.toString() ?: "latest"
-          env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
-          echo "✅ FULL_IMAGE set to: ${env.FULL_IMAGE}"
+        stage('Setup Image Tag') {
+            steps {
+                script {
+                    env.TAG = env.BUILD_NUMBER?.toString() ?: 'latest'
+                    env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
+                    echo "✅ FULL_IMAGE: ${env.FULL_IMAGE}"
+                }
+            }
         }
-      }
-    }
 
-    stage('Build Docker Image') {
-      steps {
-        sh 'docker build -t $FULL_IMAGE .'
-      }
-    }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $FULL_IMAGE .'
+            }
+        }
 
-    stage('Login to Registry') {
-      steps {
-        sh '''
-          echo "🧪 DEBUG:"
+        stage('Login to Registry') {
+            steps {
+                sh '''
+          echo "🧪 Logging in to Docker Registry"
           echo "Username: $DOCKER_USERNAME"
           echo "Registry: $REGISTRY"
           echo "Image: $FULL_IMAGE"
 
           echo $DOCKER_PASSWORD | docker login $REGISTRY -u $DOCKER_USERNAME --password-stdin
         '''
-      }
-    }
+            }
+        }
 
-    stage('Push Docker Image') {
-      steps {
-        sh 'docker push $FULL_IMAGE'
-      }
-    }
+        stage('Push Docker Image') {
+            steps {
+                sh 'docker push $FULL_IMAGE'
+            }
+        }
 
-    stage('Clean Up Local Image') {
-      steps {
-        sh '''
+        stage('Clean Up Local Image') {
+            steps {
+                sh '''
           echo "🧹 Cleaning up local image: $FULL_IMAGE"
-          docker rmi $FULL_IMAGE || echo "⚠️ Failed to remove image (maybe already gone)"
+          docker rmi $FULL_IMAGE || echo "⚠️ Failed to remove image"
         '''
-      }
-    }
+            }
+        }
 
     // stage('Add Jenkins SSH Public Key to Target') {
     //   steps {
@@ -124,5 +110,5 @@ pipeline {
     //     """
     //   }
     // }
-  }
+    }
 }
