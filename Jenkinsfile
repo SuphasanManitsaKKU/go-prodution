@@ -6,6 +6,16 @@ pipeline {
   }
 
   stages {
+    stage('Check Build Info') {
+      steps {
+        sh '''
+          echo "🔧 BUILD_NUMBER = $BUILD_NUMBER"
+          echo "🔧 JOB_NAME = $JOB_NAME"
+          echo "🔧 BUILD_ID = $BUILD_ID"
+        '''
+      }
+    }
+
     stage('Load All Configs from Vault') {
       steps {
         script {
@@ -36,12 +46,22 @@ pipeline {
             env.IMAGE_OUTPUT_PORT = env.IMAGE_OUTPUT_PORT
             env.TARGET_USER = env.TARGET_USER
             env.TARGET_IP = env.TARGET_IP
-            env.TAG = env.BUILD_NUMBER  // override TAG เป็น build number
+            env.TAG = env.BUILD_NUMBER 
             env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
           }
         }
       }
     }
+
+    stage('Check Build Info2') {
+  steps {
+    sh '''
+      echo "🔧 BUILD_NUMBER = $BUILD_NUMBER"
+      echo "🔧 JOB_NAME = $JOB_NAME"
+      echo "🔧 BUILD_ID = $BUILD_ID"
+    '''
+  }
+}
 
     stage('Build Docker Image') {
       steps {
