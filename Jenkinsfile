@@ -59,7 +59,7 @@ pipeline {
           echo "🔧 BUILD_NUMBER = $BUILD_NUMBER"
           echo "🔧 JOB_NAME = $JOB_NAME"
           echo "🔧 BUILD_ID = $BUILD_ID"
-          echo "$REGISTRY/$REGISTRY_PROJECT_NAME/$IMAGE:$TAG"
+          echo "$REGISTRY/$REGISTRY_PROJECT_NAME/$IMAGE:$BUILD_ID"
         '''
       }
     }
