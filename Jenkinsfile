@@ -54,15 +54,15 @@ pipeline {
     }
 
     stage('Check Build Info2') {
-  steps {
-    sh '''
-      echo "🔧 BUILD_NUMBER = $BUILD_NUMBER"
-      echo "🔧 JOB_NAME = $JOB_NAME"
-      echo "🔧 BUILD_ID = $BUILD_ID"
-      echo "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
-    '''
-  }
-}
+      steps {
+        sh '''
+          echo "🔧 BUILD_NUMBER = $BUILD_NUMBER"
+          echo "🔧 JOB_NAME = $JOB_NAME"
+          echo "🔧 BUILD_ID = $BUILD_ID"
+          echo "$REGISTRY/$REGISTRY_PROJECT_NAME/$IMAGE:$TAG"
+        '''
+      }
+    }
 
     stage('Build Docker Image') {
       steps {
