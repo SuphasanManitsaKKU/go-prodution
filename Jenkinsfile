@@ -38,21 +38,6 @@ pipeline {
             env.TARGET_IP = env.TARGET_IP
             env.TAG = env.BUILD_NUMBER  // override TAG เป็น build number
             env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
-
-            // ✅ DEBUG: echo ตัวแปรทั้งหมด
-            sh '''
-              echo "✅ Loaded and assigned Vault secrets:"
-              echo "REGISTRY=$REGISTRY"
-              echo "REGISTRY_PROJECT_NAME=$REGISTRY_PROJECT_NAME"
-              echo "IMAGE=$IMAGE"
-              echo "TAG=$TAG"
-              echo "FULL_IMAGE=$FULL_IMAGE"
-              echo "IMAGE_OUTPUT_PORT=$IMAGE_OUTPUT_PORT"
-              echo "DOCKER_USERNAME=$DOCKER_USERNAME"
-              echo "DOCKER_PASSWORD=$DOCKER_PASSWORD"
-              echo "TARGET_USER=$TARGET_USER"
-              echo "TARGET_IP=$TARGET_IP"
-            '''
           }
         }
       }
@@ -80,6 +65,15 @@ pipeline {
     stage('Push Docker Image') {
       steps {
         sh 'docker push $FULL_IMAGE'
+      }
+    }
+
+    stage('Clean Up Local Image') {
+      steps {
+        sh '''
+          echo "🧹 Cleaning up local image: $FULL_IMAGE"
+          docker rmi $FULL_IMAGE || echo "⚠️ Failed to remove image (maybe already gone)"
+        '''
       }
     }
 
