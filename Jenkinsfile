@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  environment {
+    DOCKER_BUILDKIT = '1'  // ✅ เปิด BuildKit สำหรับทุก stage
+  }
+
   stages {
     stage('Load All Configs from Vault') {
       steps {
@@ -33,7 +37,7 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        sh 'DOCKER_BUILDKIT=1 docker build -t $FULL_IMAGE .'
+        sh 'docker build -t $FULL_IMAGE .'
       }
     }
 
