@@ -47,7 +47,7 @@ pipeline {
             env.TARGET_USER = env.TARGET_USER
             env.TARGET_IP = env.TARGET_IP
             env.TAG = env.BUILD_NUMBER?.toString() ?: "latest"
-            env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
+            env.FULL_IMAGE = env.REGISTRY + "/" + env.REGISTRY_PROJECT_NAME + "/" + env.IMAGE + ":" + env.TAG
           }
         }
       }
