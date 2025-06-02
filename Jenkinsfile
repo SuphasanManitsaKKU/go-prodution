@@ -94,23 +94,21 @@ pipeline {
         stage('Trigger Ansible CD') {
             steps {
                 sh """
-
-
                     cat > /var/jenkins_home/ansible/inventory.ini <<EOF
-                        [production]
-                        target ansible_host=${TARGET_IP} ansible_user=${TARGET_USER}
-                        EOF
+        [production]
+        target ansible_host=${TARGET_IP} ansible_user=${TARGET_USER}
+        EOF
 
-                    ansible-playbook -i /var/jenkins_home/ansible/inventory.ini \
-                        /var/jenkins_home/ansible/playbooks/deploy_app.yml \
+                    ansible-playbook -i /var/jenkins_home/ansible/inventory.ini \\
+                        /var/jenkins_home/ansible/playbooks/deploy_app.yml \\
                         --extra-vars \\
                         "registry=${REGISTRY} \\
-                         registry_project_name=${REGISTRY_PROJECT_NAME} \\
-                         image_name=${IMAGE} \\
-                         tag=${TAG} \\
-                         image_port=${IMAGE_OUTPUT_PORT} \\
-                         host_ip=${TARGET_IP} \\
-                         ansible_user=${TARGET_USER}"
+                        registry_project_name=${REGISTRY_PROJECT_NAME} \\
+                        image_name=${IMAGE} \\
+                        tag=${TAG} \\
+                        image_port=${IMAGE_OUTPUT_PORT} \\
+                        host_ip=${TARGET_IP} \\
+                        ansible_user=${TARGET_USER}"
                 """
             }
         }
