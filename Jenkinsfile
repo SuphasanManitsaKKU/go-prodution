@@ -46,8 +46,8 @@ pipeline {
             env.IMAGE_OUTPUT_PORT = env.IMAGE_OUTPUT_PORT
             env.TARGET_USER = env.TARGET_USER
             env.TARGET_IP = env.TARGET_IP
-            env.TAG = env.BUILD_NUMBER?.toString() ?: "latest"
-            env.FULL_IMAGE = env.REGISTRY + "/" + env.REGISTRY_PROJECT_NAME + "/" + env.IMAGE + ":" + env.TAG
+            env.TAG = env.TAG
+            env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:"
           }
         }
       }
@@ -59,6 +59,7 @@ pipeline {
       echo "🔧 BUILD_NUMBER = $BUILD_NUMBER"
       echo "🔧 JOB_NAME = $JOB_NAME"
       echo "🔧 BUILD_ID = $BUILD_ID"
+      echo "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
     '''
   }
 }
