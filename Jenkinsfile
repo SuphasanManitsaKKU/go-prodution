@@ -43,7 +43,14 @@ pipeline {
 
     stage('Login to Registry') {
       steps {
-        sh 'echo $DOCKER_PASSWORD | docker login $REGISTRY -u $DOCKER_USERNAME --password-stdin'
+        sh '''
+          echo "🧪 DEBUG:"
+          echo "Username: $DOCKER_USERNAME"
+          echo "Registry: $REGISTRY"
+          echo "Image: $FULL_IMAGE"
+
+          echo $DOCKER_PASSWORD | docker login $REGISTRY -u $DOCKER_USERNAME --password-stdin
+        '''
       }
     }
 
