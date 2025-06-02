@@ -94,12 +94,12 @@ pipeline {
         stage('Trigger Ansible CD') {
             steps {
                 sh """
-                    echo "[INFO] Running Ansible deployment..."
 
-                    mkdir -p ~/.ssh
-                    cp /var/jenkins_home/.ssh/id_rsa ~/.ssh/id_rsa
-                    chmod 600 ~/.ssh/id_rsa
-                    ssh-keyscan -H $TARGET_IP >> ~/.ssh/known_hosts
+
+                    cat > /var/jenkins_home/ansible/inventory.ini <<EOF
+                        [production]
+                        target ansible_host=${TARGET_IP} ansible_user=${TARGET_USER}
+                        EOF
 
                     ansible-playbook -i /var/jenkins_home/ansible/inventory.ini \
                         /var/jenkins_home/ansible/playbooks/deploy_app.yml \
