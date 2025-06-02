@@ -32,7 +32,16 @@ pipeline {
               [envVar: 'TARGET_IP', vaultKey: 'TARGET_IP']
             ]
           ]]) {
-          // no-op, env vars are auto-loaded
+          // assign เข้า env pipeline
+            env.DOCKER_PASSWORD = env.DOCKER_PASSWORD
+            env.DOCKER_USERNAME = env.DOCKER_USERNAME
+            env.REGISTRY = env.REGISTRY
+            env.REGISTRY_PROJECT_NAME = env.REGISTRY_PROJECT_NAME
+            env.IMAGE = env.IMAGE
+            env.IMAGE_OUTPUT_PORT = env.IMAGE_OUTPUT_PORT
+            env.TARGET_USER = env.TARGET_USER
+            env.TARGET_IP = env.TARGET_IP
+            env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:"
           }
                 }
             }
