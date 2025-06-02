@@ -31,8 +31,7 @@ pipeline {
                   [envVar: 'IMAGE', vaultKey: 'IMAGE'],
                   [envVar: 'IMAGE_OUTPUT_PORT', vaultKey: 'IMAGE_OUTPUT_PORT'],
                   [envVar: 'TARGET_USER', vaultKey: 'TARGET_USER'],
-                  [envVar: 'TARGET_IP', vaultKey: 'TARGET_IP'],
-                  [envVar: 'TAG', vaultKey: 'TAG']
+                  [envVar: 'TARGET_IP', vaultKey: 'TARGET_IP']
                 ]
               ]
             ]
@@ -46,21 +45,20 @@ pipeline {
             env.IMAGE_OUTPUT_PORT = env.IMAGE_OUTPUT_PORT
             env.TARGET_USER = env.TARGET_USER
             env.TARGET_IP = env.TARGET_IP
-            env.TAG = env.TAG
             env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:"
           }
         }
       }
     }
 
-    stage('Check Build Info2') {
+    stage('Build Tag Setup') {
       steps {
-        sh '''
-          echo "🔧 BUILD_NUMBER = $BUILD_NUMBER"
-          echo "🔧 JOB_NAME = $JOB_NAME"
-          echo "🔧 BUILD_ID = $BUILD_ID"
-          echo "$REGISTRY/$REGISTRY_PROJECT_NAME/$IMAGE:$BUILD_ID"
-        '''
+        script {
+          // ✅ คำนวณ tag และ full image ที่นี่ (มี BUILD_NUMBER แล้วแน่นอน)
+          env.TAG = env.BUILD_NUMBER?.toString() ?: "latest"
+          env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
+          echo "✅ FULL_IMAGE set to: ${env.FULL_IMAGE}"
+        }
       }
     }
 
