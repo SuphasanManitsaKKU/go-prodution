@@ -12,24 +12,47 @@ pipeline {
           withVault(
             vaultSecrets: [
               [
-                path: 'pipeline/env', // <-- ตรงกับที่คุณ `vault kv put`
+                path: 'pipeline/env',
                 secretValues: [
+                  [envVar: 'DOCKER_PASSWORD', vaultKey: 'DOCKER_PASSWORD'],
+                  [envVar: 'DOCKER_USERNAME', vaultKey: 'DOCKER_USERNAME'],
                   [envVar: 'REGISTRY', vaultKey: 'REGISTRY'],
                   [envVar: 'REGISTRY_PROJECT_NAME', vaultKey: 'REGISTRY_PROJECT_NAME'],
                   [envVar: 'IMAGE', vaultKey: 'IMAGE'],
                   [envVar: 'IMAGE_OUTPUT_PORT', vaultKey: 'IMAGE_OUTPUT_PORT'],
                   [envVar: 'TARGET_USER', vaultKey: 'TARGET_USER'],
                   [envVar: 'TARGET_IP', vaultKey: 'TARGET_IP'],
-                  [envVar: 'DOCKER_USERNAME', vaultKey: 'DOCKER_USERNAME'],
-                  [envVar: 'DOCKER_PASSWORD', vaultKey: 'DOCKER_PASSWORD']
+                  [envVar: 'TAG', vaultKey: 'TAG']
                 ]
               ]
             ]
           ) {
-            env.TAG = env.BUILD_NUMBER
+            // assign เข้า env pipeline
+            env.DOCKER_PASSWORD = env.DOCKER_PASSWORD
+            env.DOCKER_USERNAME = env.DOCKER_USERNAME
+            env.REGISTRY = env.REGISTRY
+            env.REGISTRY_PROJECT_NAME = env.REGISTRY_PROJECT_NAME
+            env.IMAGE = env.IMAGE
+            env.IMAGE_OUTPUT_PORT = env.IMAGE_OUTPUT_PORT
+            env.TARGET_USER = env.TARGET_USER
+            env.TARGET_IP = env.TARGET_IP
+            env.TAG = env.BUILD_NUMBER  // override TAG เป็น build number
             env.FULL_IMAGE = "${env.REGISTRY}/${env.REGISTRY_PROJECT_NAME}/${env.IMAGE}:${env.TAG}"
 
-            sh 'echo ✅ Loaded all Vault secrets.'
+            // ✅ DEBUG: echo ตัวแปรทั้งหมด
+            sh '''
+              echo "✅ Loaded and assigned Vault secrets:"
+              echo "REGISTRY=$REGISTRY"
+              echo "REGISTRY_PROJECT_NAME=$REGISTRY_PROJECT_NAME"
+              echo "IMAGE=$IMAGE"
+              echo "TAG=$TAG"
+              echo "FULL_IMAGE=$FULL_IMAGE"
+              echo "IMAGE_OUTPUT_PORT=$IMAGE_OUTPUT_PORT"
+              echo "DOCKER_USERNAME=$DOCKER_USERNAME"
+              echo "DOCKER_PASSWORD=$DOCKER_PASSWORD"
+              echo "TARGET_USER=$TARGET_USER"
+              echo "TARGET_IP=$TARGET_IP"
+            '''
           }
         }
       }
